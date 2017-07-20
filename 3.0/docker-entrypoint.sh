@@ -23,7 +23,7 @@ if [ "$1" = 'cassandra' ]; then
 	: ${CASSANDRA_BROADCAST_ADDRESS="$CASSANDRA_LISTEN_ADDRESS"}
 
 	if [ "$CASSANDRA_BROADCAST_ADDRESS" = 'auto' ]; then
-		CASSANDRA_BROADCAST_ADDRESS="$(hostname --ip-address)"
+		CASSANDRA_BROADCAST_ADDRESS="$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)"
 	fi
 	: ${CASSANDRA_BROADCAST_RPC_ADDRESS:=$CASSANDRA_BROADCAST_ADDRESS}
 

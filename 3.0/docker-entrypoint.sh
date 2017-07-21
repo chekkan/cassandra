@@ -30,6 +30,13 @@ if [ "$1" = 'cassandra' ]; then
 	if [ -n "${CASSANDRA_NAME:+1}" ]; then
 		: ${CASSANDRA_SEEDS:="cassandra"}
 	fi
+
+	# if consul http environment variable is given and cassandra_seeds is empty,
+	# get the seed list from consul
+	if [ "$CONSUL_HTTP" -a "$CONSUL_SEED_SERVICE_NAME"]; then
+		: ${CASSANDRA_SEEDS:="$(curl -s $CONSUL_HTTP:8500/v1/catalog/service/$CONSUL_SEED_SERVICE_NAME | jq -r '[.[].Address] | join(",")')"}
+	fi
+
 	: ${CASSANDRA_SEEDS:="$CASSANDRA_BROADCAST_ADDRESS"}
 	
 	sed -ri 's/(- seeds:).*/\1 "'"$CASSANDRA_SEEDS"'"/' "$CASSANDRA_CONFIG/cassandra.yaml"
